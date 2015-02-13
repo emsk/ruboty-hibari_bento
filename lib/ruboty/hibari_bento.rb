@@ -1,0 +1,5 @@
+require 'koala'
+require 'redis'
+require 'redis-namespace'
+require 'ruboty/hibari_bento/version'
+require 'ruboty/handlers/hibari_bento'
