@@ -5,7 +5,7 @@ require 'ruboty/hibari_bento/version'
 Gem::Specification.new do |spec|
   spec.name          = 'ruboty-hibari_bento'
   spec.version       = Ruboty::HibariBento::VERSION
-  spec.authors       = %w(Masaki Enjo)
+  spec.authors       = ['Masaki Enjo']
   spec.email         = %w(emsk1987@gmail.com)
   spec.summary       = 'Ruboty handler to get information of Hibari Bento, the bento shop in Ruby City MATSUE.'
   spec.homepage      = 'http://github.com/emsk/ruboty-hibari_bento'
