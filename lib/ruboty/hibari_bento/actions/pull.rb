@@ -62,11 +62,11 @@ module Ruboty
         end
 
         def client
-          return @client ||= Redis::Namespace.new(REDIS_NAMESPACE, redis: redis)
+          return @client ||= ::Redis::Namespace.new(REDIS_NAMESPACE, redis: redis)
         end
 
         def redis
-          return Redis.new(url: redis_url)
+          return ::Redis.new(url: redis_url)
         end
 
         def redis_url
