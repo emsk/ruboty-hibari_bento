@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'ruboty'
 require 'ruboty/hibari_bento'
 require 'rspec'
