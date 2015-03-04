@@ -13,30 +13,28 @@ describe Ruboty::HibariBento::Actions::Pull do
     let(:pull) { Ruboty::HibariBento::Actions::Pull.new(message) }
 
     describe 'reply message' do
-      let(:facebook_graph_api_url) { Ruboty::HibariBento::Actions::Pull::FACEBOOK_GRAPH_API_URL }
-      let(:request_url) { "#{facebook_graph_api_url}/#{Ruboty::HibariBento::Actions::Pull::FACEBOOK_PAGE_ID}/posts" }
+      let(:request_url) { "https://graph.facebook.com/#{Ruboty::HibariBento::Actions::Pull::FACEBOOK_PAGE_ID}/posts" }
       let(:access_token) { 'token' }
       let(:request_query) do
         {
           access_token: access_token,
-          fields: 'id,object_id,link,message,updated_time',
+          fields: 'id,attachments,link,message,updated_time',
           locale: 'ja_JP'
         }
       end
 
       let(:post_id) { '1234567890123456' }
-      let(:post_object_id) { '2345678901234567' }
       let(:expected_message) { /こんにちは！\n新規配達先受付中！/ }
-      let(:expected_picture_url) { Regexp.new(Regexp.escape("#{facebook_graph_api_url}/#{post_object_id}/picture")) }
-      let(:expected_link) { Regexp.new(Regexp.escape("https://www.facebook.com/#{post_id}/photos/a.3456789012345678.1234567890.#{post_id}/#{post_object_id}/?type=1")) }
+      let(:photo_url_regexp) { 'https:\/\/.+\.(jpg|jpeg|png|gif).*' }
+      let(:expected_photo_urls) { Regexp.new(photo_url_regexp) }
+      let(:expected_link) { /https:\/\/www\.facebook\.com\/#{post_id}\/photos\/a\.3456789012345678\.1234567890\.#{post_id}\/\d+\/\?type=1/ }
       let(:expected_updated_time) { /2015-02-20 08:30:05/ }
       let(:expected_separator) { /\n--------------------\n/ }
 
       let(:post_id_2) { '9876543210987654' }
-      let(:post_object_id_2) { '8765432109876543' }
       let(:expected_message_2) { /本日のお昼の弁当です。\nおかずのみ350円・ご飯250gとセットで440円。/ }
-      let(:expected_picture_url_2) { Regexp.new(Regexp.escape("#{facebook_graph_api_url}/#{post_object_id_2}/picture")) }
-      let(:expected_link_2) { Regexp.new(Regexp.escape("https://www.facebook.com/#{post_id_2}/photos/a.3456789012345678.1234567890.#{post_id_2}/#{post_object_id_2}/?type=1")) }
+      let(:expected_photo_urls_2) { Regexp.new("#{photo_url_regexp}\\n#{photo_url_regexp}") }
+      let(:expected_link_2) { /https:\/\/www\.facebook\.com\/#{post_id_2}\/photos\/a\.3456789012345678\.1234567890\.#{post_id_2}\/\d+\/\?type=1/ }
       let(:expected_updated_time_2) { /2015-02-19 08:50:10/ }
 
       before do
@@ -54,7 +52,7 @@ describe Ruboty::HibariBento::Actions::Pull do
           end
 
           it { is_expected.to match(expected_message) }
-          it { is_expected.to match(expected_picture_url) }
+          it { is_expected.to match(expected_photo_urls) }
           it { is_expected.to match(expected_link) }
           it { is_expected.to match(expected_updated_time) }
           it { is_expected.not_to match(expected_separator) }
@@ -68,7 +66,7 @@ describe Ruboty::HibariBento::Actions::Pull do
           end
 
           it { is_expected.not_to match(expected_message) }
-          it { is_expected.to match(expected_picture_url) }
+          it { is_expected.to match(expected_photo_urls) }
           it { is_expected.to match(expected_link) }
           it { is_expected.to match(expected_updated_time) }
           it { is_expected.not_to match(expected_separator) }
@@ -82,36 +80,8 @@ describe Ruboty::HibariBento::Actions::Pull do
           end
 
           it { is_expected.not_to match(expected_message) }
-          it { is_expected.to match(expected_picture_url) }
+          it { is_expected.to match(expected_photo_urls) }
           it { is_expected.to match(expected_link) }
-          it { is_expected.to match(expected_updated_time) }
-          it { is_expected.not_to match(expected_separator) }
-        end
-
-        context 'with no object_id' do
-          before do
-            stub_request(:get, request_url)
-              .with(query: request_query)
-              .to_return(body: File.new('spec/fixtures/a_post_with_no_object_id.json'), status: 200)
-          end
-
-          it { is_expected.to match(expected_message) }
-          it { is_expected.not_to match(expected_picture_url) }
-          it { is_expected.to match(expected_link) }
-          it { is_expected.to match(expected_updated_time) }
-          it { is_expected.not_to match(expected_separator) }
-        end
-
-        context 'with no link' do
-          before do
-            stub_request(:get, request_url)
-              .with(query: request_query)
-              .to_return(body: File.new('spec/fixtures/a_post_with_no_link.json'), status: 200)
-          end
-
-          it { is_expected.to match(expected_message) }
-          it { is_expected.to match(expected_picture_url) }
-          it { is_expected.not_to match(expected_link) }
           it { is_expected.to match(expected_updated_time) }
           it { is_expected.not_to match(expected_separator) }
         end
@@ -124,7 +94,7 @@ describe Ruboty::HibariBento::Actions::Pull do
           end
 
           it { is_expected.to match(expected_message) }
-          it { is_expected.to match(expected_picture_url) }
+          it { is_expected.to match(expected_photo_urls) }
           it { is_expected.not_to match(expected_link) }
           it { is_expected.to match(expected_updated_time) }
           it { is_expected.not_to match(expected_separator) }
@@ -140,12 +110,12 @@ describe Ruboty::HibariBento::Actions::Pull do
           end
 
           it { is_expected.to match(expected_message) }
-          it { is_expected.to match(expected_picture_url) }
+          it { is_expected.to match(expected_photo_urls) }
           it { is_expected.to match(expected_link) }
           it { is_expected.to match(expected_updated_time) }
           it { is_expected.to match(expected_separator) }
           it { is_expected.to match(expected_message_2) }
-          it { is_expected.to match(expected_picture_url_2) }
+          it { is_expected.to match(expected_photo_urls_2) }
           it { is_expected.to match(expected_link_2) }
           it { is_expected.to match(expected_updated_time_2) }
         end
@@ -160,12 +130,12 @@ describe Ruboty::HibariBento::Actions::Pull do
         end
 
         it { is_expected.to match(expected_message) }
-        it { is_expected.to match(expected_picture_url) }
+        it { is_expected.to match(expected_photo_urls) }
         it { is_expected.to match(expected_link) }
         it { is_expected.to match(expected_updated_time) }
         it { is_expected.not_to match(expected_separator) }
         it { is_expected.not_to match(expected_message_2) }
-        it { is_expected.not_to match(expected_picture_url_2) }
+        it { is_expected.not_to match(expected_photo_urls_2) }
         it { is_expected.not_to match(expected_link_2) }
         it { is_expected.not_to match(expected_updated_time_2) }
       end

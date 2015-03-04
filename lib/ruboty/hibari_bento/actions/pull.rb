@@ -3,7 +3,6 @@ module Ruboty
     module Actions
       class Pull < Ruboty::Actions::Base
         FACEBOOK_PAGE_ID = '1585734291650119'.freeze
-        FACEBOOK_GRAPH_API_URL = 'https://graph.facebook.com'.freeze
         REDIS_NAMESPACE = 'hibari_bento'.freeze
         REDIS_KEY = 'id'.freeze
 
@@ -27,7 +26,7 @@ module Ruboty
 
         def posts
           options = {
-            fields: %w(id object_id link message updated_time),
+            fields: %w(id attachments link message updated_time),
             locale: 'ja_JP'
           }
           return graph.get_connections(FACEBOOK_PAGE_ID, 'posts', options)
@@ -80,7 +79,7 @@ module Ruboty
         def message_content(post)
           messages = []
           messages.push(post['message'])
-          messages.push(picture_url(post['object_id']))
+          messages.push(photo_urls(post))
           messages.push(post['link'])
           messages.compact!
           messages.reject!(&:empty?)
@@ -92,9 +91,21 @@ module Ruboty
           return messages.join("\n")
         end
 
-        def picture_url(object_id)
-          return '' if object_id.nil?
-          return "#{FACEBOOK_GRAPH_API_URL}/#{object_id}/picture"
+        def photo_urls(post)
+          urls = []
+
+          post['attachments']['data'].each do |attachment|
+            subattachments = attachment['subattachments']
+            if subattachments.nil?
+              urls.push(attachment['media']['image']['src'])
+            else
+              subattachments['data'].each do |subattachment|
+                urls.push(subattachment['media']['image']['src'])
+              end
+            end
+          end
+
+          return urls.join("\n")
         end
 
         def time_format(time)

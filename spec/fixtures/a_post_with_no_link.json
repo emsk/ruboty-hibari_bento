@@ -2,7 +2,31 @@
   "data":[
     {
       "id":"1234567890123456",
-      "object_id":"2345678901234567",
+      "attachments":{
+        "data":[
+          {
+            "subattachments":{
+              "data":[
+                {
+                  "media":{
+                    "image":{
+                      "height":640, 
+                      "src":"https://example.net/test/image.jpg?foo=1234abcd&bar=1234abcd", 
+                      "width":640
+                    }
+                  }, 
+                  "target":{
+                    "id":"2345678901234567", 
+                    "url":"https:\/\/www.facebook.com\/1234567890123456\/photos\/a.3456789012345678.1234567890.1234567890123456\/2345678901234567\/?type=1"
+                  }, 
+                  "type":"photo", 
+                  "url":"https:\/\/www.facebook.com\/1234567890123456\/photos\/a.3456789012345678.1234567890.1234567890123456\/2345678901234567\/?type=1"
+                }
+              ]
+            }
+          }
+        ]
+      },
       "message":"こんにちは！\n新規配達先受付中！",
       "updated_time":"2015-02-19T23:30:05+0000"
     }
