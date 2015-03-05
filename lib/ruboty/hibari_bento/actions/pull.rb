@@ -2,6 +2,7 @@ module Ruboty
   module HibariBento
     module Actions
       class Pull < Ruboty::Actions::Base
+        FACEBOOK_URL = 'https://www.facebook.com'.freeze
         FACEBOOK_PAGE_ID = '1585734291650119'.freeze
         REDIS_NAMESPACE = 'hibari_bento'.freeze
         REDIS_KEY = 'id'.freeze
@@ -26,7 +27,7 @@ module Ruboty
 
         def posts
           options = {
-            fields: %w(id attachments link message updated_time),
+            fields: %w(id attachments message updated_time),
             locale: 'ja_JP'
           }
           return graph.get_connections(FACEBOOK_PAGE_ID, 'posts', options)
@@ -80,7 +81,7 @@ module Ruboty
           messages = []
           messages.push(post['message'])
           messages.push(photo_urls(post))
-          messages.push(post['link'])
+          messages.push(post_url(post['id']))
           messages.compact!
           messages.reject!(&:empty?)
 
@@ -106,6 +107,12 @@ module Ruboty
           end
 
           return urls.join("\n")
+        end
+
+        def post_url(post_id)
+          id = post_id.split('_')[1]
+          return "" if id.nil?
+          return "#{FACEBOOK_URL}/#{FACEBOOK_PAGE_ID}/posts/#{id}"
         end
 
         def time_format(time)
